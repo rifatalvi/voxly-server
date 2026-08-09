@@ -1,15 +1,18 @@
+require('dotenv').config();
 const { io } = require('../frontend/node_modules/socket.io-client');
 const jwt = require('jsonwebtoken');
 
-const JWT_ACCESS_SECRET = 'voxly_secret_access_token_sign_key_987654321';
+const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
+const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
+
 const token = jwt.sign(
   { id: 'mock-user-id-123', username: 'testuser', email: 'test@test.com' },
   JWT_ACCESS_SECRET,
   { expiresIn: '15m' }
 );
 
-console.log('Connecting with token:', token);
-const socket = io('http://localhost:5000', {
+console.log('Connecting with token to:', socketUrl);
+const socket = io(socketUrl, {
   auth: { token },
   transports: ['websocket']
 });

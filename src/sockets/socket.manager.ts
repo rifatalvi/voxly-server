@@ -6,7 +6,7 @@ import { registerPresenceHandlers } from './presence.handler';
 import { registerChatHandlers } from './chat.handler';
 import { registerCallHandlers } from './call.handler';
 
-const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'voxly_secret_access_token_sign_key_987654321';
+const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
 
 export interface AuthenticatedSocket extends Socket {
   user?: {
@@ -26,10 +26,7 @@ export class SocketManager {
           if (process.env.NODE_ENV !== 'production') {
             callback(null, true);
           } else {
-            const allowed = [
-              'http://localhost:3000',
-              'http://127.0.0.1:3000',
-              process.env.FRONTEND_URL
+            const allowed = [process.env.FRONTEND_URL
             ].filter(Boolean) as string[];
             if (!origin || allowed.includes(origin)) {
               callback(null, true);

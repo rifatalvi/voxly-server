@@ -9,6 +9,20 @@ const PORT = process.env.PORT || 5000;
 
 async function startServer() {
   try {
+    // Check required environment variables
+    const requiredEnv = [
+      'DATABASE_URL',
+      'REDIS_URL',
+      'JWT_ACCESS_SECRET',
+      'JWT_REFRESH_SECRET',
+      'TURN_SECRET',
+      'TURN_SERVER_DOMAIN'
+    ];
+    const missing = requiredEnv.filter(key => !process.env[key]);
+    if (missing.length > 0) {
+      throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    }
+
     // 1. Connect to PostgreSQL
     await connectDb();
 

@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { prisma } from '../services/db.service';
 
-const TURN_SECRET = process.env.TURN_SECRET || 'voxly_shared_secret_lt_creds_token_generation';
-const TURN_SERVER_DOMAIN = process.env.TURN_SERVER_DOMAIN || 'localhost';
+const TURN_SECRET = process.env.TURN_SECRET!;
+const TURN_SERVER_DOMAIN = process.env.TURN_SERVER_DOMAIN!;
 
 export const getCallHistory = async (req: Request, res: Response): Promise<void> => {
   try {
