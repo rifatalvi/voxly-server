@@ -4,6 +4,12 @@ import { prisma } from '../services/db.service';
 
 const TURN_SECRET = process.env.TURN_SECRET!;
 const TURN_SERVER_DOMAIN = process.env.TURN_SERVER_DOMAIN!;
+const METERED_API_KEY = process.env.METERED_API_KEY;
+const METERED_SUBDOMAIN = process.env.METERED_SUBDOMAIN;
+
+// In-memory cache for Metered.ca ICE servers
+let cachedMeteredIceServers: any = null;
+let meteredCacheExpiry = 0;
 
 export const getCallHistory = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -77,6 +83,42 @@ export const generateTurnCredentials = async (req: Request, res: Response): Prom
     if (!userId) {
       res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
       return;
+    }
+
+    // If Metered.ca is configured, attempt to fetch ICE servers from their API
+    if (METERED_API_KEY && METERED_SUBDOMAIN) {
+      try {
+        const now = Date.now();
+        if (cachedMeteredIceServers && now < meteredCacheExpiry) {
+          res.status(200).json({
+            success: true,
+            data: { iceServers: cachedMeteredIceServers },
+          });
+          return;
+        }
+
+        console.log('Fetching fresh TURN credentials from Metered.ca...');
+        const response = await (globalThis as any).fetch(
+          `https://${METERED_SUBDOMAIN}.metered.live/api/v1/turn/credentials?apiKey=${METERED_API_KEY}`
+        );
+
+        if (response.ok) {
+          const iceServers = await response.json();
+          if (Array.isArray(iceServers)) {
+            cachedMeteredIceServers = iceServers;
+            meteredCacheExpiry = now + 30 * 60 * 1000; // Cache for 30 minutes
+
+            res.status(200).json({
+              success: true,
+              data: { iceServers },
+            });
+            return;
+          }
+        }
+        console.warn('Metered.ca API failed or returned invalid format. Falling back to local coturn...');
+      } catch (fetchError) {
+        console.error('Error fetching from Metered.ca, falling back to local coturn:', fetchError);
+      }
     }
 
     // TTL for credentials: 24 hours (86400 seconds)
