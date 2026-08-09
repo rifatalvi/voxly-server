@@ -14,6 +14,7 @@ async function startServer() {
 
     // 2. Connect to Redis
     await redisService.connect();
+    await redisService.clearAllPresence();
 
     // 3. Create HTTP Server
     const server = http.createServer(app);

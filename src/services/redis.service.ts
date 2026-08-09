@@ -116,6 +116,22 @@ class RedisService {
       console.error(`Error deleting cached call state for call ${callId}:`, err);
     }
   }
+  async clearAllPresence(): Promise<void> {
+    if (!this.isConnected || !this.client) return;
+    try {
+      const keys = await this.client.keys('user:sockets:*');
+      for (const key of keys) {
+        await this.client.del(key);
+      }
+      const presenceKeys = await this.client.keys('user:presence:*');
+      for (const key of presenceKeys) {
+        await this.client.del(key);
+      }
+      console.log('Cleared all stale presence data from Redis');
+    } catch (err) {
+      console.error('Error clearing presence data on startup:', err);
+    }
+  }
 }
 
 export const redisService = new RedisService();
