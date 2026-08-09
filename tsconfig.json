@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "CommonJS",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,5 +14,8 @@
     "resolveJsonModule": true,
     "moduleResolution": "node"
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*",
+    "scratch_test_*.ts"
+  ]
 }
