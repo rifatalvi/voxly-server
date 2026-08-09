@@ -101,7 +101,7 @@ export class SocketManager {
       // Handle disconnection
       socket.on('disconnect', async () => {
         console.log(`User disconnected: ${user.username} - Socket: ${socketId}`);
-        
+
         // Remove socket from Redis
         await redisService.removeUserSocket(userId, socketId);
 
@@ -109,7 +109,7 @@ export class SocketManager {
         const activeSockets = await redisService.getUserSockets(userId);
         if (activeSockets.length === 0) {
           const offlineTime = new Date();
-          
+
           // Update DB lastSeen
           try {
             const { prisma } = require('../services/db.service');
